@@ -26,6 +26,7 @@ public slots:
     void showGlobalLicense();
     void showWarrantyLicense();
     void showCopyLicense();
+    void showNetwork();
 private:
     void makeConnections();
     Ui::MainWindowCSSH *ui;

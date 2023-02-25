@@ -44,6 +44,7 @@ void MainWindowCSSH::makeConnections()
     connect(ui->actionComplete,SIGNAL(triggered()),this,SLOT(showGlobalLicense()));
     connect(ui->actionWarranty,SIGNAL(triggered()),this,SLOT(showWarrantyLicense()));
     connect(ui->actionCopy,SIGNAL(triggered()),this,SLOT(showCopyLicense()));
+    connect(ui->actionShow_network_information,SIGNAL(triggered()),this,SLOT(showNetwork()));
 }
 
 MainWindowCSSH::MainWindowCSSH(QWidget *parent)
@@ -92,16 +93,22 @@ void MainWindowCSSH::about()
 
 void MainWindowCSSH::showGlobalLicense()
 {
-    LicenceDialog window(LicenceDialogType::Global,this);
+    LicenceDialog window(LicenceDialogType::Global,this->width()/2,this->height()/2,this);
     window.exec();
 }
 void MainWindowCSSH::showWarrantyLicense()
 {
-    LicenceDialog window(LicenceDialogType::Warranty,this);
+    LicenceDialog window(LicenceDialogType::Warranty,this->width()/2,this->height()/2,this);
     window.exec();
 }
 void MainWindowCSSH::showCopyLicense()
 {
-    LicenceDialog window(LicenceDialogType::Copy,this);
+    LicenceDialog window(LicenceDialogType::Copy,this->width()/2,this->height()/2,this);
+    window.exec();
+}
+
+void MainWindowCSSH::showNetwork()
+{
+    LicenceDialog window(LicenceDialogType::Network,this->width()/2,this->height()/2,this);
     window.exec();
 }

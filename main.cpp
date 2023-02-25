@@ -26,6 +26,6 @@ int main(int argc, char *argv[])
         }
     }
     MainWindowCSSH w;
-    w.show();
+    w.showMaximized();
     return a.exec();
 }
