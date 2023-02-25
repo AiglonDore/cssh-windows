@@ -34,15 +34,53 @@ bool sshDectected()
 }
 #endif
 
+void MainWindowCSSH::makeConnections()
+{
+    connect(ui->executePushButton,SIGNAL(clicked()),this,SLOT(executeCommand()));
+    connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(about()));
+    connect(ui->actionAbout_Qt,SIGNAL(triggered()),qApp,SLOT(aboutQt()));
+}
+
 MainWindowCSSH::MainWindowCSSH(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindowCSSH)
 {
     ui->setupUi(this);
+    mainToolBar = new QToolBar(tr("Tool bar"));
+    mainToolBar->addActions({ui->actionNew,ui->actionClose,ui->actionClose_all});
+    mainToolBar->addSeparator();
+    mainToolBar->addAction(ui->actionLoad_script);
+    addToolBar(mainToolBar);
+    mainToolBar->setMovable(false);
+    makeConnections();
 }
 
 MainWindowCSSH::~MainWindowCSSH()
 {
+    delete mainToolBar;
     delete ui;
 }
 
+void MainWindowCSSH::executeCommand()
+{
+    QStringList commandWords = ui->commandLineEdit->text().split(' ',Qt::SkipEmptyParts);
+    if (commandWords.isEmpty())
+    {
+        ui->statusbar->showMessage(tr("No command to execute."));
+        return;
+    }
+    if (commandWords[0] == "ssh")
+    {
+        int countHosts(0);
+        ui->statusbar->showMessage(tr("Adding %n new host.","",countHosts));
+    }
+    else
+    {
+        ui->statusbar->showMessage(tr("Executing command."));
+    }
+}
+
+void MainWindowCSSH::about()
+{
+    QMessageBox::information(this,tr("Cluster SSH information"),tr("This is a tool to connect to a cluster of hosts, using SSH, on Linux and Windows hosts."),QMessageBox::Close,QMessageBox::Close);
+}

@@ -2,6 +2,11 @@
 #define MAINWINDOWCSSH_H
 
 #include <QMainWindow>
+#include <QProcess>
+#include <QList>
+#include <QToolBar>
+
+typedef QList<QProcess> QProcessList;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindowCSSH; }
@@ -13,9 +18,15 @@ class MainWindowCSSH : public QMainWindow
 
 public:
     MainWindowCSSH(QWidget *parent = nullptr);
-    ~MainWindowCSSH();
+    virtual ~MainWindowCSSH();
 
+public slots:
+    void executeCommand();
+    void about();
 private:
+    void makeConnections();
     Ui::MainWindowCSSH *ui;
+    QProcessList processList;
+    QToolBar *mainToolBar;
 };
 #endif // MAINWINDOWCSSH_H
