@@ -23,6 +23,9 @@ public:
 public slots:
     void executeCommand();
     void about();
+    void showGlobalLicense();
+    void showWarrantyLicense();
+    void showCopyLicense();
 private:
     void makeConnections();
     Ui::MainWindowCSSH *ui;

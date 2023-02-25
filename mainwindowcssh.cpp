@@ -5,6 +5,8 @@
 #include <QString>
 #include <QMessageBox>
 
+#include "licencedialog.h"
+
 #ifdef _WIN32
 bool sshDetected()
 {
@@ -39,6 +41,9 @@ void MainWindowCSSH::makeConnections()
     connect(ui->executePushButton,SIGNAL(clicked()),this,SLOT(executeCommand()));
     connect(ui->actionAbout,SIGNAL(triggered()),this,SLOT(about()));
     connect(ui->actionAbout_Qt,SIGNAL(triggered()),qApp,SLOT(aboutQt()));
+    connect(ui->actionComplete,SIGNAL(triggered()),this,SLOT(showGlobalLicense()));
+    connect(ui->actionWarranty,SIGNAL(triggered()),this,SLOT(showWarrantyLicense()));
+    connect(ui->actionCopy,SIGNAL(triggered()),this,SLOT(showCopyLicense()));
 }
 
 MainWindowCSSH::MainWindowCSSH(QWidget *parent)
@@ -83,4 +88,20 @@ void MainWindowCSSH::executeCommand()
 void MainWindowCSSH::about()
 {
     QMessageBox::information(this,tr("Cluster SSH information"),tr("This is a tool to connect to a cluster of hosts, using SSH, on Linux and Windows hosts."),QMessageBox::Close,QMessageBox::Close);
+}
+
+void MainWindowCSSH::showGlobalLicense()
+{
+    LicenceDialog window(LicenceDialogType::Global,this);
+    window.exec();
+}
+void MainWindowCSSH::showWarrantyLicense()
+{
+    LicenceDialog window(LicenceDialogType::Warranty,this);
+    window.exec();
+}
+void MainWindowCSSH::showCopyLicense()
+{
+    LicenceDialog window(LicenceDialogType::Copy,this);
+    window.exec();
 }
