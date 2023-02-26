@@ -10,6 +10,7 @@
 #include "licencedialog.h"
 #include "configfilewidget.h"
 #include "lookup.h"
+#include "exception.h"
 
 void MainWindowCSSH::makeConnections()
 {
@@ -77,6 +78,12 @@ void MainWindowCSSH::executeCommand()
         int countHosts(0);
         ui->statusbar->showMessage(tr("Adding %n new host.","",countHosts));
         // TODO : add host
+        try {
+            int nbConenctions = connectionList.size();
+            int nbNewConnctions = parseSSHConnections();
+        } catch (const Exception& e) {
+            QMessageBox::critical(this,tr("Error in creating connections"),e.getMessage(),QMessageBox::Close,QMessageBox::Close);
+        }
     }
     else
     {
@@ -131,7 +138,7 @@ void MainWindowCSSH::editConfigFile()
 
 void MainWindowCSSH::loadAndExecuteScript()
 {
-    QString path = QFileDialog::getOpenFileName(this,tr("Load script path..."),QDir::homePath(),tr("Shell scripts (*.sh,*.bash);;PowerShell scripts (*.ps1);;Windows Command Batch Script (*.bat);;All files (*.*)"));
+    QString path = QFileDialog::getOpenFileName(this,tr("Load script file..."),QDir::homePath(),tr("Shell scripts (*.sh,*.bash);;PowerShell scripts (*.ps1);;Windows Command Batch Script (*.bat);;All files (*.*)"));
     if (path.isEmpty())
     {
         ui->statusbar->showMessage(tr("No script to be loaded."));
@@ -154,6 +161,28 @@ void MainWindowCSSH::loadAndExecuteScript()
         }
     }
     QByteArray scriptData = script.readAll();
-    // TODO: feed the script to the processes
     script.close();
+    // TODO: Feed data to processes
+    for (int i = 0; i < processList.size(); ++i)
+    {
+
+    }
+}
+
+int MainWindowCSSH::parseSSHConnections()
+{
+    int nb(0);
+    QStringList commandWords = ui->commandLineEdit->text().split(' ',Qt::SkipEmptyParts);
+    commandWords.pop_front();
+
+    for (const QString& part : commandWords)
+    {
+        QStringList partSplit = part.split('@');
+        if (partSplit.size() != 2) throw Exception(tr("Each SSH host must be written like \"user@domain:port\". Please check your input."));
+        //if (partSplit[0].isEmpty()) partSplit[0] = TODO: add current username.
+        QString currentUserName = partSplit[0];
+        //TODO: add domains and IP addresses
+    }
+
+    return nb;
 }

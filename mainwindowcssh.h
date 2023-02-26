@@ -13,6 +13,15 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindowCSSH; }
 QT_END_NAMESPACE
 
+struct Connection {
+    QString hostname;
+    QString ip4Address;
+    QString ip6Address;
+    QString username;
+    int port;
+};
+typedef QList<Connection> QConnectionList;
+
 class MainWindowCSSH : public QMainWindow
 {
     Q_OBJECT
@@ -35,9 +44,11 @@ private slots:
     void loadAndExecuteScript();
 private:
     void makeConnections();
+    int parseSSHConnections();
     Ui::MainWindowCSSH *ui;
-    QProcessList processList;
     QToolBar *mainToolBar;
-    QThread *networkThread;//TO activate the thread to resolve DNS
+
+    QProcessList processList;
+    QConnectionList connectionList;
 };
 #endif // MAINWINDOWCSSH_H
