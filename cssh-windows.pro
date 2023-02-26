@@ -11,12 +11,14 @@ CONFIG += c++17
 SOURCES += \
     configfilewidget.cpp \
     licencedialog.cpp \
+    lookup.cpp \
     main.cpp \
     mainwindowcssh.cpp
 
 HEADERS += \
     configfilewidget.h \
     licencedialog.h \
+    lookup.h \
     mainwindowcssh.h
 
 FORMS += \
