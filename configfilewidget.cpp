@@ -8,20 +8,26 @@
 #include <QFileDialog>
 
 ConfigFileWidget::ConfigFileWidget(const QString& filename, int width, int height, QWidget *parent) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::ConfigFileWidget),
     edited(false),
+    saveButton(new QPushButton(tr("Save"))),
+    saveAsButton(new QPushButton(tr("Save as..."))),
+    discardButton(new QPushButton(tr("Discard"))),
+    closeButton(new QPushButton(tr("Close"))),
     fileLocation(filename)
 {
     ui->setupUi(this);
+    setWindowModality(Qt::WindowModal);
     ui->buttonBox->addButton(saveButton,QDialogButtonBox::ActionRole);
     saveButton->setDisabled(true);
     ui->buttonBox->addButton(saveAsButton,QDialogButtonBox::ActionRole);
     ui->buttonBox->addButton(discardButton,QDialogButtonBox::DestructiveRole);
     ui->buttonBox->addButton(closeButton,QDialogButtonBox::ActionRole);
-    connect(ui->plainTextEdit,SIGNAL(textChanged()),this,SLOT(textEdited()));
     connect(saveButton,SIGNAL(clicked()),this,SLOT(save()));
     connect(saveAsButton,SIGNAL(clicked()),this,SLOT(saveAs()));
+    connect(discardButton,SIGNAL(clicked()),this,SLOT(reject()));
+    connect(closeButton,SIGNAL(clicked()),this,SLOT(closeWindow()));
     resize(width,height);
 
     QFile file(fileLocation);
@@ -31,6 +37,7 @@ ConfigFileWidget::ConfigFileWidget(const QString& filename, int width, int heigh
     }
     ui->plainTextEdit->setPlainText(file.readAll());
     file.close();
+    connect(ui->plainTextEdit,SIGNAL(textChanged()),this,SLOT(textEdited()));
 }
 
 ConfigFileWidget::~ConfigFileWidget()
@@ -102,4 +109,14 @@ void ConfigFileWidget::closeEvent(QCloseEvent *e)
         if (ans == QMessageBox::Yes) save();
     }
     e->accept();
+}
+
+void ConfigFileWidget::closeWindow()
+{
+    if (edited)
+    {
+        QMessageBox::StandardButton ans = QMessageBox::warning(this,tr("File not saved"),tr("Modifications are occuring on the configuration file. Do you want to save them?"),QMessageBox::Yes|QMessageBox::No,QMessageBox::No);
+        if (ans == QMessageBox::Yes) save();
+    }
+    accept();
 }

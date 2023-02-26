@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QList>
 #include <QToolBar>
+#include <QThread>
 
 typedef QList<QProcess> QProcessList;
 
@@ -27,10 +28,16 @@ public slots:
     void showWarrantyLicense();
     void showCopyLicense();
     void showNetwork();
+
+private slots:
+    void editMainConfigFile();
+    void editConfigFile();
+    void loadAndExecuteScript();
 private:
     void makeConnections();
     Ui::MainWindowCSSH *ui;
     QProcessList processList;
     QToolBar *mainToolBar;
+    QThread *networkThread;//TO activate the thread to resolve DNS
 };
 #endif // MAINWINDOWCSSH_H

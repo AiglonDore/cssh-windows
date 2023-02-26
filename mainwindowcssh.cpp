@@ -4,13 +4,15 @@
 #include <QFile>
 #include <QString>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QStringBuilder>
 
 #include "licencedialog.h"
+#include "configfilewidget.h"
 
 #ifdef _WIN32
-bool sshDetected()
+bool sshDetected(const QString& appName = "ssh.exe")
 {
-    const QString appName = "ssh.exe";
     QStringList path = qEnvironmentVariable("path").split(';',Qt::SkipEmptyParts);
     path << QDir::toNativeSeparators("C:/WINDOWS/System32/OpenSSH");
     for (const QString& dir : path)
@@ -22,9 +24,8 @@ bool sshDetected()
     return false;
 }
 #else
-bool sshDectected()
+bool sshDectected(const QString& appName = "ssh")
 {
-    const QString appName = "ssh";
     QStringList path = qEnvironmentVariable("PATH").split(':',Qt::SkipEmptyParts);
     for (const QString& dir : path)
     {
@@ -45,6 +46,9 @@ void MainWindowCSSH::makeConnections()
     connect(ui->actionWarranty,SIGNAL(triggered()),this,SLOT(showWarrantyLicense()));
     connect(ui->actionCopy,SIGNAL(triggered()),this,SLOT(showCopyLicense()));
     connect(ui->actionShow_network_information,SIGNAL(triggered()),this,SLOT(showNetwork()));
+    connect(ui->actionMain_config_file,SIGNAL(triggered()),this,SLOT(editMainConfigFile()));
+    connect(ui->actionOther,SIGNAL(triggered()),this,SLOT(editConfigFile()));
+    connect(ui->actionLoad_script,SIGNAL(triggered()),this,SLOT(loadAndExecuteScript()));
 }
 
 MainWindowCSSH::MainWindowCSSH(QWidget *parent)
@@ -59,6 +63,25 @@ MainWindowCSSH::MainWindowCSSH(QWidget *parent)
     addToolBar(mainToolBar);
     mainToolBar->setMovable(false);
     makeConnections();
+#ifdef _WIN32
+    if (!sshDetected())
+    {
+        QMessageBox::critical(this,tr("SSH not detected","SSH is the name of a program"),tr("SSH executable cannot be found on PATH. This program is useless without it. You can install using the optional fetaures of Windows: it's the \"SSH-Client\" feature."),QMessageBox::Close,QMessageBox::Close);
+    }
+#else
+    if (!sshDetected())
+    {
+        QProcess unixVersion;
+        unixVersion.setProgram("lsb_release");
+        unixVersion.setArguments({"-a"});
+        unixVersion.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
+        unixVersion.start();
+        unixVersion.waitForFinished(5000);
+        QString unixVersionOutput = unixVersion.readAll();
+        QMessageBox::critical(this,tr("SSH not detected","SSH is the name of a program"),tr("SSH executable cannot be found on PATH. This program is useless without it. Here is your Linux version:")
+                              % unixVersionOutput % tr("Check on Intenet which package you must install and how. Usually, it is named \"openssh-client\"."), QMessageBox::Close,QMessageBox::Close);
+    }
+#endif
 }
 
 MainWindowCSSH::~MainWindowCSSH()
@@ -79,10 +102,12 @@ void MainWindowCSSH::executeCommand()
     {
         int countHosts(0);
         ui->statusbar->showMessage(tr("Adding %n new host.","",countHosts));
+        // TODO : add host
     }
     else
     {
         ui->statusbar->showMessage(tr("Executing command."));
+        // TODO: add execute command
     }
 }
 
@@ -111,4 +136,50 @@ void MainWindowCSSH::showNetwork()
 {
     LicenceDialog window(LicenceDialogType::Network,this->width()/2,this->height()/2,this);
     window.exec();
+}
+
+void MainWindowCSSH::editMainConfigFile()
+{
+    QDir dir = QDir::home();
+    dir.cd(".ssh");
+    QString path = dir.absoluteFilePath("config");
+    ConfigFileWidget window(path,this->width()/2,this->height()/2,this);
+    window.exec();
+}
+
+void MainWindowCSSH::editConfigFile()
+{
+    QString path = QFileDialog::getOpenFileName(this,tr("Open SSH configuration file..."),QDir::homePath() + "/.ssh",tr("All files (*.*)"));
+    if (path.isEmpty()) return;
+    ConfigFileWidget window(path,this->width()/2,this->height()/2,this);
+    window.exec();
+}
+
+void MainWindowCSSH::loadAndExecuteScript()
+{
+    QString path = QFileDialog::getOpenFileName(this,tr("Load script path..."),QDir::homePath(),tr("Shell scripts (*.sh,*.bash);;PowerShell scripts (*.ps1);;Windows Command Batch Script (*.bat);;All files (*.*)"));
+    if (path.isEmpty())
+    {
+        ui->statusbar->showMessage(tr("No script to be loaded."));
+        return;
+    }
+    QFile script(path);
+    QFileInfo scriptInfo(script);
+    if (!script.open(QIODevice::ReadOnly|QIODevice::Text))
+    {
+        QMessageBox::critical(this,tr("Unable to open script"),tr("File at location \"") % path % tr("\" cannot be opened. Aborting task."),QMessageBox::Close,QMessageBox::Close);
+        return;
+    }
+    if (!scriptInfo.isExecutable())
+    {
+        QMessageBox::StandardButton ans = QMessageBox::warning(this,tr("Executing a non-executable file"),tr("You are trying to execute a script that is not defined as executable. Please double check the file or change its permission. If you are sur of what you are doing, you can proceed."),QMessageBox::Apply|QMessageBox::Abort,QMessageBox::Abort);
+        if (ans != QMessageBox::Apply)
+        {
+            ui->statusbar->showMessage(tr("Aborting task."));
+            return;
+        }
+    }
+    QByteArray scriptData = script.readAll();
+    // TODO: feed the script to the processes
+    script.close();
 }

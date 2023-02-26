@@ -2,13 +2,14 @@
 #define CONFIGFILEWIDGET_H
 
 #include <QWidget>
+#include <QDialog>
 #include <QPushButton>
 
 namespace Ui {
 class ConfigFileWidget;
 }
 
-class ConfigFileWidget : public QWidget
+class ConfigFileWidget : public QDialog
 {
     Q_OBJECT
 
@@ -24,6 +25,7 @@ private slots:
     void textEdited();
     void save();
     void saveAs();
+    void closeWindow();
 
 private:
     Ui::ConfigFileWidget *ui;

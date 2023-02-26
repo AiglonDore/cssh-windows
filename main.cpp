@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     }
     if (!translated)
     {
-        const QString baseName = "cssh-windows_en_EN";
+        const QString baseName = "cssh-windows_fr_FR";
         if (translator.load(":/i18n/" + baseName)) {
             a.installTranslator(&translator);
         }
