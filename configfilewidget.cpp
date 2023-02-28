@@ -63,9 +63,12 @@ void ConfigFileWidget::changeEvent(QEvent *e)
 
 void ConfigFileWidget::textEdited()
 {
-    edited = true;
-    saveButton->setEnabled(true);
-    setWindowTitle("*"+windowTitle());
+    if (!edited)
+    {
+        edited = true;
+        saveButton->setEnabled(true);
+        setWindowTitle("*"+windowTitle());
+    }
 }
 
 void ConfigFileWidget::save()
